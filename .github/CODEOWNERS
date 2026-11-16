@@ -1,0 +1,14 @@
+/src/validation/   @amizh-labs
+/src/training/     @amizh-labs
+/flows/            @amizh-labs
+/src/serving/      @amizh-labs
+/monitoring/       @amizh-labs
+
+/src/features/     @vaishnavi7106
+/src/evaluation/   @vaishnavi7106
+/.github/          @vaishnavi7106
+/k8s/              @vaishnavi7106
+
+# Shared: docs and contracts need review from both
+/docs/             @amizh-labs @vaishnavi7106
+/CLAUDE.md         @amizh-labs @vaishnavi7106

@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+mlruns/
+mlartifacts/
+.env
+
+# Raw data is tracked by DVC, never by git
+/data/raw/
+/data/processed/

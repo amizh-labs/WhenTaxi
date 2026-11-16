@@ -1,0 +1,30 @@
+[project]
+name = "eta-mlops"
+version = "0.1.0"
+description = "End-to-end MLOps platform predicting NYC yellow taxi trip duration (ETA)"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas",
+    "pyarrow",
+    "pandera",
+    "lightgbm",
+    "mlflow",
+    "fastapi",
+    "uvicorn",
+    "prometheus-client",
+    "evidently",
+    "prefect",
+    "feast",
+    "dvc",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
