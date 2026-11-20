@@ -1,0 +1,25 @@
+# Steady request load so Prometheus has data to judge the canary with.
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: traffic, namespace: eta}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: traffic}}
+  template:
+    metadata: {labels: {app: traffic}}
+    spec:
+      containers:
+        - name: curl
+          image: curlimages/curl:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              while true; do
+                for pair in "161 237" "237 161" "132 230" "79 48" "236 237" "186 170"; do
+                  set -- $pair
+                  curl -s -o /dev/null -X POST http://eta-api/predict \
+                    -H 'Content-Type: application/json' \
+                    -d "{\"pickup_zone\": $1, \"dropoff_zone\": $2, \"pickup_ts\": \"2026-03-20T08:30:00\"}"
+                  sleep 0.1
+                done
+              done

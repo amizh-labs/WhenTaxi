@@ -1,0 +1,84 @@
+# The API as an Argo Rollout: canary 10% -> 50% -> 100%, background analysis against Prometheus,
+# automatic abort + rollback if the AnalysisTemplate fails. Without a traffic router Argo splits
+# traffic by pod count: replicas=10 gives exactly 1/5/10 pods. With replicas=5 the weights are only
+# approximate (10% rounds up to 1 pod = ~20%; 50% becomes 2-3 pods).
+# No stableService/canaryService on purpose: Argo would pin that Service to the stable ReplicaSet hash, so the
+# canary pods would receive no traffic. The plain Service selects every pod, which is the pod-count split.
+# demo.py renders spec.replicas from its --replicas option (default 10).
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: eta-api
+  namespace: eta
+spec:
+  replicas: 10
+  revisionHistoryLimit: 3
+  selector: {matchLabels: {app: eta-api}}
+  strategy:
+    canary:
+      analysis:
+        templates: [{templateName: eta-canary-health}]
+        startingStep: 1
+        args:
+          # Argo labels every pod with rollouts-pod-template-hash; these resolve to its value for the
+          # newest (canary) ReplicaSet and the current stable one.
+          - name: canary-hash
+            valueFrom: {podTemplateHashValue: Latest}
+          - name: stable-hash
+            valueFrom: {podTemplateHashValue: Stable}
+      steps:
+        - setWeight: 10
+        - pause: {duration: 240s}
+        - setWeight: 50
+        - pause: {duration: 120s}
+        - setWeight: 100
+  template:
+    metadata:
+      labels: {app: eta-api}
+      annotations: {prometheus.io/scrape: "true"}
+    spec:
+      initContainers:
+        # SQLite needs a writable directory (journal/lock files), so copy the Feast online store from
+        # the read-only host snapshot into a per-pod emptyDir instead of using the host files directly.
+        - name: copy-feast-store
+          image: busybox:1.36
+          command: ["sh", "-c", "cp -r /src/. /data/feast/ && ls -l /data/feast"]
+          volumeMounts:
+            - {name: feast-src, mountPath: /src, readOnly: true}
+            - {name: feast, mountPath: /data/feast}
+      containers:
+        - name: api
+          image: eta-api:local  # built and loaded into k3d by k8s/demo.py; CD publishes the same image to GHCR
+          imagePullPolicy: IfNotPresent
+          ports: [{containerPort: 8000}]
+          env:
+            - {name: MLFLOW_TRACKING_URI, value: "http://mlflow:5000"}
+            - {name: ETA_WEATHER_PATH, value: /data/raw/weather_2026_01_07.json}
+            - {name: ETA_FEAST_ROOT, value: /data/feast}
+            - {name: ETA_FEATURE_AGE_ALERT_SECONDS, value: "604800"}  # EtaFeaturesStale threshold (7 days)
+            - {name: ETA_FAULT, value: ""}      # "bias" | "slow" | "errors" = deliberately bad release
+            - {name: ETA_RELEASE, value: "1"}   # bump to roll out an otherwise identical release
+          readinessProbe: {httpGet: {path: /health, port: 8000}, periodSeconds: 5, failureThreshold: 12}
+          livenessProbe: {httpGet: {path: /health, port: 8000}, periodSeconds: 20, initialDelaySeconds: 60}
+          # Measured steady state is ~345 MB RSS (model + Feast + MLflow imports); limits below ~400Mi
+          # would OOM-kill the pod. Use --replicas 5 to halve the total footprint.
+          resources:
+            requests: {cpu: 50m, memory: 256Mi}
+            limits: {memory: 512Mi}
+          volumeMounts:
+            - {name: weather, mountPath: /data/raw, readOnly: true}  # one JSON file, only ever read
+            - {name: feast, mountPath: /data/feast}                  # writable emptyDir copy
+      volumes:
+        - name: weather
+          hostPath: {path: /data/raw, type: Directory}
+        - name: feast-src
+          hostPath: {path: /data/feast, type: Directory}
+        - name: feast
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: eta-api, namespace: eta}
+spec:
+  selector: {app: eta-api}
+  ports: [{port: 80, targetPort: 8000}]

@@ -1,0 +1,90 @@
+# In-cluster Prometheus. Discovers API pods and keeps the Argo pod-template-hash as a label so
+# the AnalysisTemplate can compare the canary's pods with the stable pods.
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: prometheus, namespace: eta}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: eta-prometheus}
+rules:
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: eta-prometheus}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: eta-prometheus}
+subjects:
+  - {kind: ServiceAccount, name: prometheus, namespace: eta}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: prometheus-config, namespace: eta}
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 5s
+    rule_files:
+      - /etc/prometheus/alerts.yml
+    scrape_configs:
+      - job_name: eta-api
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces: {names: [eta]}
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: "true"
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: "$1:8000"
+          # Argo Rollouts labels pods `rollouts-pod-template-hash`; Prometheus turns '-' into '_' in
+          # discovery meta labels. (Not the Deployment-style `pod-template-hash`, which Rollouts do not set.)
+          - source_labels: [__meta_kubernetes_pod_label_rollouts_pod_template_hash]
+            target_label: rollouts_pod_template_hash
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+  alerts.yml: |
+    # Prometheus alert rules for the ETA API (no Alertmanager: alerts are visible in the Prometheus UI under /alerts).
+    # The threshold is NOT in this file: each API pod exports it as eta_feature_age_alert_threshold_seconds, set from the
+    # env var ETA_FEATURE_AGE_ALERT_SECONDS (default 604800 = 7 days). -1 means "age unknown" and never fires.
+    # The same group is embedded in k8s/prometheus.yaml (a test keeps both identical).
+    groups:
+      - name: eta-freshness
+        rules:
+          - alert: EtaFeaturesStale
+            expr: eta_feature_age_seconds > eta_feature_age_alert_threshold_seconds
+            for: 1m
+            labels: {severity: warning}
+            annotations:
+              summary: "Rolling features are older than the allowed age on {{ $labels.instance }}"
+              description: "Feast store materialized {{ $value | humanizeDuration }} ago; re-run features.store.materialize."
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: prometheus, namespace: eta}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: prometheus}}
+  template:
+    metadata: {labels: {app: prometheus}}
+    spec:
+      serviceAccountName: prometheus
+      containers:
+        - name: prometheus
+          image: prom/prometheus:latest
+          args: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=2h"]
+          ports: [{containerPort: 9090}]
+          volumeMounts: [{name: config, mountPath: /etc/prometheus}]
+      volumes:
+        - name: config
+          configMap: {name: prometheus-config}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: prometheus, namespace: eta}
+spec:
+  selector: {app: prometheus}
+  ports: [{port: 9090, targetPort: 9090}]

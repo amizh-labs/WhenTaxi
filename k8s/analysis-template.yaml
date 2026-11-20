@@ -1,0 +1,79 @@
+# Argo Rollouts AnalysisTemplate: judges the canary with Prometheus while it receives traffic.
+# Metric names come from docs/contracts.md section 4 (exported by the API):
+#   eta_request_latency_seconds (histogram), eta_requests_total{status}, eta_prediction_minutes (histogram)
+#
+# Rules for every metric:
+#   * A REAL BREACH FAILS AT ONCE. failureCondition only matches a present, non-NaN value over the threshold,
+#     and failureLimit is 0, so the first breach aborts the rollout and Argo rolls back to stable.
+#   * NO DATA IS NEVER A PASS, AND NEVER A FALSE ALARM. An empty or NaN result (no samples yet, 0/0, cold pods
+#     at a canary step) matches neither successCondition nor failureCondition, so Argo records the measurement
+#     as Inconclusive. After inconclusiveLimit (3) of them the metric is Inconclusive and Argo PAUSES the
+#     rollout for a human instead of promoting it: fail-closed, but no automatic rollback. A bad release that
+#     also produces no data therefore waits for `kubectl argo rollouts abort|promote`, it is never promoted.
+#   * success and failure are exact complements on a present value, so a real number is never inconclusive.
+#     A query or expression that cannot be evaluated ends in Error after consecutiveErrorLimit.
+#   * initialDelay 150s: the canary pods must load the model, become ready, be scraped (5s interval) and receive
+#     traffic from the traffic generator before the 1m rate() windows contain enough samples.
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: eta-canary-health
+  namespace: eta
+spec:
+  args:
+    - name: canary-hash
+    - name: stable-hash
+  metrics:
+    - name: p95-latency-seconds
+      interval: 20s
+      initialDelay: 150s
+      failureLimit: 0
+      inconclusiveLimit: 3
+      consecutiveErrorLimit: 2
+      successCondition: len(result) > 0 && !isNaN(result[0]) && result[0] < 0.5
+      failureCondition: len(result) > 0 && !isNaN(result[0]) && result[0] >= 0.5
+      provider:
+        prometheus:
+          address: http://prometheus.eta.svc:9090
+          query: |
+            histogram_quantile(0.95, sum by (le) (
+              rate(eta_request_latency_seconds_bucket{rollouts_pod_template_hash="{{args.canary-hash}}"}[1m])))
+
+    - name: error-rate-5xx
+      interval: 20s
+      initialDelay: 150s
+      failureLimit: 0
+      inconclusiveLimit: 3
+      consecutiveErrorLimit: 2
+      successCondition: len(result) > 0 && !isNaN(result[0]) && result[0] < 0.02
+      failureCondition: len(result) > 0 && !isNaN(result[0]) && result[0] >= 0.02
+      provider:
+        prometheus:
+          address: http://prometheus.eta.svc:9090
+          # `or vector(0)` makes "no 5xx at all" a real 0 in the numerator; the denominator has no such
+          # fallback, so a canary that received no requests at all yields no data -> failure.
+          query: |
+            (sum(rate(eta_requests_total{rollouts_pod_template_hash="{{args.canary-hash}}",status=~"5.."}[1m])) or vector(0))
+            / sum(rate(eta_requests_total{rollouts_pod_template_hash="{{args.canary-hash}}"}[1m]))
+
+    # Prediction sanity: the canary's mean predicted ETA must stay within 25% of the stable version's.
+    # A model that is badly biased (or broken) fails this even when it is fast and returns 200s.
+    - name: prediction-sanity-vs-stable
+      interval: 20s
+      initialDelay: 150s
+      failureLimit: 0
+      inconclusiveLimit: 3
+      consecutiveErrorLimit: 2
+      successCondition: len(result) > 0 && !isNaN(result[0]) && result[0] < 0.25
+      failureCondition: len(result) > 0 && !isNaN(result[0]) && result[0] >= 0.25
+      provider:
+        prometheus:
+          address: http://prometheus.eta.svc:9090
+          query: |
+            abs(
+              (sum(rate(eta_prediction_minutes_sum{rollouts_pod_template_hash="{{args.canary-hash}}"}[1m]))
+               / sum(rate(eta_prediction_minutes_count{rollouts_pod_template_hash="{{args.canary-hash}}"}[1m])))
+              /
+              (sum(rate(eta_prediction_minutes_sum{rollouts_pod_template_hash="{{args.stable-hash}}"}[1m]))
+               / sum(rate(eta_prediction_minutes_count{rollouts_pod_template_hash="{{args.stable-hash}}"}[1m])))
+              - 1)

@@ -1,0 +1,42 @@
+# In-cluster MLflow. The SQLite DB and the artifacts live on a PersistentVolumeClaim (k3d's built-in `local-path`
+# storage class), so the model registry survives pod restarts. It does NOT survive `k3d cluster delete`.
+# LOCAL DEMO ONLY: no auth, no TLS. MLflow's DNS-rebinding guard only accepts localhost/private IPs by default,
+# so the in-cluster names the API pods use (mlflow:5000, ...) are allow-listed explicitly with --allowed-hosts
+# (any other Host header gets 403). Do not expose this server beyond the cluster / your machine.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: mlflow-data, namespace: eta}
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources: {requests: {storage: 2Gi}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: mlflow, namespace: eta}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}  # one SQLite writer: stop the old pod before the new one mounts the volume
+  selector: {matchLabels: {app: mlflow}}
+  template:
+    metadata: {labels: {app: mlflow}}
+    spec:
+      containers:
+        - name: mlflow
+          image: ghcr.io/mlflow/mlflow:latest
+          command: ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000",
+                    "--backend-store-uri", "sqlite:////mlflow/mlflow.db",
+                    "--artifacts-destination", "/mlflow/artifacts", "--serve-artifacts",
+                    "--allowed-hosts", "localhost:5000,127.0.0.1:5000,mlflow,mlflow:5000,mlflow.eta,mlflow.eta:5000,mlflow.eta.svc,mlflow.eta.svc:5000,mlflow.eta.svc.cluster.local,mlflow.eta.svc.cluster.local:5000"]
+          ports: [{containerPort: 5000}]
+          volumeMounts: [{name: data, mountPath: /mlflow}]
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: mlflow-data}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: mlflow, namespace: eta}
+spec:
+  selector: {app: mlflow}
+  ports: [{port: 5000, targetPort: 5000}]
