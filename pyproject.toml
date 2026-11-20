@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "End-to-end MLOps platform predicting NYC yellow taxi trip duration (ETA)"
 requires-python = ">=3.11,<3.13"
 dependencies = [
-    "pandas",
+    "pandas<3",  # feast needs pandas 2.x; unpinned, pip picks pandas 3 and backtracks to feast 0.28, which cannot build
     "pyarrow",
     "pandera",
     "lightgbm",
