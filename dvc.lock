@@ -1,0 +1,27 @@
+schema: '2.0'
+stages:
+  clean:
+    cmd: python -m validation.clean --raw-dir data/raw --out-dir data/processed
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 945a6af6ea796582c3e1b33aa8eb197a.dir
+      size: 190947019
+      nfiles: 5
+    - path: src/validation/clean.py
+      hash: md5
+      md5: 5443275f11f433d69fc1f43963acd6ed
+      size: 3883
+    - path: src/validation/schema.py
+      hash: md5
+      md5: af5e52645c390cfb47d8d5e1dd4b7302
+      size: 499
+    outs:
+    - path: data/processed/data_quality_report.json
+      hash: md5
+      md5: eef6b41a717384f0196fff5926b9ab22
+      size: 725
+    - path: data/processed/trips_clean.parquet
+      hash: md5
+      md5: 021e7a198aa8f3509c656820138046b1
+      size: 97580402

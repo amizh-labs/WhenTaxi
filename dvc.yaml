@@ -1,0 +1,15 @@
+# Data pipeline (DVC). `dvc repro` re-runs a stage only when its deps or command changed.
+# data/raw is tracked by data/raw.dvc (see README "Data versioning"); the cleaning code is listed file by file
+# (not as the whole src/validation directory) so __pycache__ never invalidates the stage.
+stages:
+  clean:
+    cmd: python -m validation.clean --raw-dir data/raw --out-dir data/processed
+    deps:
+      - data/raw
+      - src/validation/clean.py
+      - src/validation/schema.py
+    outs:
+      - data/processed/trips_clean.parquet
+    metrics:
+      - data/processed/data_quality_report.json:
+          cache: false
