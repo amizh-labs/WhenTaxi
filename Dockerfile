@@ -14,7 +14,8 @@ RUN pip install --no-cache-dir ".[serving]"
 
 # Raw data is DVC-tracked and never in git, so it is not baked into the image: the weather file
 # and the Feast online store are mounted at run time (see docker-compose.yml).
-ENV ETA_CENTROIDS_PATH=/app/data/reference/zone_centroids.csv \n    ETA_WEATHER_PATH=/app/data/raw/weather_2026_01_07.json \
+ENV ETA_CENTROIDS_PATH=/app/data/reference/zone_centroids.csv \
+    ETA_WEATHER_PATH=/app/data/raw/weather_2026_01_07.json \
     MLFLOW_TRACKING_URI=http://mlflow:5000
 
 EXPOSE 8000
