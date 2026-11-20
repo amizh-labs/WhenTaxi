@@ -1,0 +1,65 @@
+# Local stack: MLflow, Prefect, API, Prometheus, Grafana (all free/open source).
+#   docker compose up --build
+# Train against the containerised MLflow so the API can load the model:
+#   set MLFLOW_TRACKING_URI=http://localhost:5000   (PowerShell: $env:MLFLOW_TRACKING_URI=...)
+#   python -m training.train
+services:
+  mlflow:
+    # LOCAL DEMO ONLY (no auth/TLS). --allowed-hosts allow-lists the names other containers and the host
+    # use (mlflow:5000, localhost:5000); any other Host header gets 403. Never expose this port publicly.
+    image: ghcr.io/mlflow/mlflow:latest
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --artifacts-destination /mlflow/artifacts --serve-artifacts
+      --allowed-hosts localhost:5000,127.0.0.1:5000,mlflow,mlflow:5000
+    ports: ["5000:5000"]
+    volumes: ["mlflow-data:/mlflow"]
+
+  prefect:
+    image: prefecthq/prefect:3-latest
+    command: prefect server start --host 0.0.0.0
+    ports: ["4200:4200"]
+    volumes: ["prefect-data:/root/.prefect"]
+
+  api:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      ETA_FEAST_ROOT: /app/data/feast  # online store built by the training flow / features.store.materialize
+      # Prediction log (single API container only; the k3d cluster demo leaves it off). Read it with
+      # `docker compose cp api:/app/log/predictions.sqlite data/prediction_log.sqlite` then flows.drift_flow.
+      ETA_PREDICTION_LOG: /app/log/predictions.sqlite
+      # EtaFeaturesStale alert fires when the Feast store is older than this (seconds; default 7 days)
+      ETA_FEATURE_AGE_ALERT_SECONDS: ${ETA_FEATURE_AGE_ALERT_SECONDS:-604800}
+    volumes:
+      - ./data/feast:/app/data/feast:ro
+      - ./data/raw/weather_2026_01_07.json:/app/data/raw/weather_2026_01_07.json:ro
+      - prediction-log:/app/log
+    depends_on: [mlflow]
+    restart: on-failure  # waits for a trained champion model to exist
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports: ["9090:9090"]
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+    depends_on: [api]
+
+  grafana:
+    image: grafana/grafana:latest
+    ports: ["3000:3000"]
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on: [prometheus]
+
+volumes:
+  mlflow-data:
+  prefect-data:
+  prediction-log:
