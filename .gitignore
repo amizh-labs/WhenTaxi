@@ -19,3 +19,7 @@ mlflow.db
 /data/prediction_log.sqlite*
 /monitoring/reports/
 /log/
+
+# kept locally, not in the repo
+/CLAUDE.md
+/docs/contracts.md
