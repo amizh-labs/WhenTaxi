@@ -71,9 +71,9 @@ spec:
           address: http://prometheus.eta.svc:9090
           query: |
             abs(
-              (sum(rate(eta_prediction_minutes_sum{rollouts_pod_template_hash="{{args.canary-hash}}"}[1m]))
-               / sum(rate(eta_prediction_minutes_count{rollouts_pod_template_hash="{{args.canary-hash}}"}[1m])))
+              (sum(rate(eta_prediction_minutes_sum{rollouts_pod_template_hash="{{args.canary-hash}}"}[3m]))
+               / sum(rate(eta_prediction_minutes_count{rollouts_pod_template_hash="{{args.canary-hash}}"}[3m])))
               /
-              (sum(rate(eta_prediction_minutes_sum{rollouts_pod_template_hash="{{args.stable-hash}}"}[1m]))
-               / sum(rate(eta_prediction_minutes_count{rollouts_pod_template_hash="{{args.stable-hash}}"}[1m])))
+              (sum(rate(eta_prediction_minutes_sum{rollouts_pod_template_hash="{{args.stable-hash}}"}[3m]))
+               / sum(rate(eta_prediction_minutes_count{rollouts_pod_template_hash="{{args.stable-hash}}"}[3m])))
               - 1)

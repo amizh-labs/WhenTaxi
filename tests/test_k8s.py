@@ -284,3 +284,16 @@ def test_demo_train_registers_the_geo_l1_model(demo, monkeypatch):
     assert cmd[1:3] == ("-m", "training.train")
     assert "--geo" in cmd and cmd[cmd.index("--objective") + 1] == "l1"
     assert kw["env"]["MLFLOW_TRACKING_URI"] == "http://localhost:5000"
+
+
+def test_prediction_sanity_uses_a_window_wide_enough_to_not_flap_on_a_healthy_canary():
+    metric = next(m for m in template_metrics() if m["name"] == "prediction-sanity-vs-stable")
+    windows = re.findall(r"\[(\d+)m\]", metric["provider"]["prometheus"]["query"])
+    assert windows and all(int(w) >= 3 for w in windows)  # a 1m window aborted an identical release once
+
+
+def test_a_good_release_clears_a_fault_left_behind_by_an_aborted_bad_one(demo):
+    rollout = {"spec": {"template": {"spec": {"containers": [{"env": [
+        {"name": "ETA_FAULT", "value": "bias"}, {"name": "ETA_RELEASE", "value": "1"}]}]}}}}
+    patch = json.loads(demo.env_patch_many(rollout, {"ETA_RELEASE": "2", "ETA_FAULT": ""}))
+    assert {p["path"].split("/")[-2]: p["value"] for p in patch} == {"0": "", "1": "2"}

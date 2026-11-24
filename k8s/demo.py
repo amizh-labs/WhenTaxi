@@ -64,6 +64,13 @@ def env_patch(rollout: dict, name: str, value: str) -> str:
     return json.dumps([{"op": "replace", "path": path, "value": value}])
 
 
+def env_patch_many(rollout: dict, changes: dict[str, str]) -> str:
+    """JSON patch that sets several container env vars at once (one new revision)."""
+    base = "/spec/template/spec/containers/0/env/"
+    return json.dumps([{"op": "replace", "path": f"{base}{env_index(rollout, n)}/value", "value": v}
+                       for n, v in changes.items()])
+
+
 def classify(rollout: dict) -> str:
     """'aborted' (rolled back), 'healthy' (fully promoted) or 'progressing'."""
     status = rollout.get("status", {})
@@ -213,8 +220,9 @@ def release(kind: str) -> None:
     current = rollout()
     before = current["status"].get("stableRS")
     before_current = current["status"].get("currentPodHash")
-    name, value = ("ETA_FAULT", "bias") if kind == "bad" else ("ETA_RELEASE", str(int(time.time())))
-    sh("kubectl", "patch", "rollout", ROLLOUT, "-n", NAMESPACE, "--type=json", "-p", env_patch(current, name, value))
+    # A good release must also clear ETA_FAULT: an aborted bad rollout leaves it set in the pod template.
+    changes = {"ETA_FAULT": "bias"} if kind == "bad" else {"ETA_RELEASE": str(int(time.time())), "ETA_FAULT": ""}
+    sh("kubectl", "patch", "rollout", ROLLOUT, "-n", NAMESPACE, "--type=json", "-p", env_patch_many(current, changes))
 
     # The first deploy goes straight to 100% (no stable version to compare with); only a NEW revision
     # starts a canary. Wait until Argo has actually picked up the changed pod template.
