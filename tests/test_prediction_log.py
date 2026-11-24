@@ -10,12 +10,14 @@ import pytest
 from fastapi.testclient import TestClient
 from monitoring.prediction_drift import (
     INSUFFICIENT,
+    KS_ALPHA,
     LOG_DRIFT_COLUMNS,
     MIN_ROWS,
     TRIGGER_COLUMNS,
     check_log_drift,
     log_features,
     main,
+    trigger_test,
 )
 
 from features import WEATHER_COLUMNS
@@ -198,6 +200,54 @@ def test_weather_never_sets_dataset_drift_even_when_every_weather_column_moves(r
     result = check_log_drift(reference, window)
     assert set(result["context_drift"]["drifted_columns"]) == set(WEATHER_COLUMNS)
     assert result["dataset_drift"] is False and result["drifted_columns"] == [] and result["share_drifted"] == 0.0
+
+
+# ---- effect-size floor and binned tests ---------------------------------------------------------------------------
+
+def test_a_big_window_with_a_significant_but_tiny_shift_is_not_drift(reference):
+    """20,000 requests make a 6% evening skew statistically significant, but it is far too small to matter."""
+    window = pd.concat([make_log(18_800, seed=31), make_log(1_200, seed=32, hours=[18, 19, 20, 21, 22, 23])],
+                       ignore_index=True)
+    result = check_log_drift(reference, window)
+    hour = result["trigger_tests"]["hour"]
+    assert hour["p_value"] < KS_ALPHA  # a p-value alone would have flagged it
+    assert hour["effect"] < hour["effect_floor"] and hour["drifted"] is False
+    assert result["drifted_columns"] == [] and result["dataset_drift"] is False
+
+
+def test_the_report_lists_the_test_behind_each_trigger_column(reference, reference_log):
+    result = check_log_drift(reference, reference_log.sample(300, random_state=5))
+    assert set(result["trigger_tests"]) == {"hour", "dow", "distance_km"}
+    assert all({"p_value", "effect", "effect_floor", "drifted"} <= set(t) for t in result["trigger_tests"].values())
+
+
+def test_trigger_test_on_identical_and_disjoint_hours():
+    hours = pd.Series(np.tile(np.arange(24), 50), dtype=float)
+    same = trigger_test("hour", hours, hours.sample(frac=1, random_state=0))
+    assert same["effect"] == 0.0 and same["drifted"] is False
+    night = pd.Series(np.tile(np.arange(0, 3), 400), dtype=float)  # hours 0-2 only: a different 3-hour block entirely
+    moved = trigger_test("hour", hours, night)
+    assert moved["effect"] > 0.8 and moved["drifted"] is True
+
+
+def test_weekday_shift_is_caught_by_the_binned_dow_test():
+    ref = pd.Series(np.tile(np.arange(7), 200), dtype=float)
+    weekend = pd.Series(np.tile([5, 6], 300), dtype=float)
+    assert trigger_test("dow", ref, weekend)["drifted"] is True
+    assert trigger_test("dow", ref, ref.sample(frac=1, random_state=1))["drifted"] is False
+
+
+def test_trigger_test_handles_one_category_and_empty_input():
+    one = pd.Series([5.0] * 100)
+    assert trigger_test("hour", one, one) == {"p_value": 1.0, "effect": 0.0, "effect_floor": 0.1, "drifted": False}
+    assert trigger_test("dow", one, pd.Series([], dtype=float))["drifted"] is False
+
+
+def test_distance_needs_both_a_significant_and_a_large_ks_difference():
+    rng = np.random.default_rng(0)
+    ref = pd.Series(rng.normal(5, 2, 20_000))
+    assert trigger_test("distance_km", ref, pd.Series(rng.normal(5.05, 2, 20_000)))["drifted"] is False  # tiny shift
+    assert trigger_test("distance_km", ref, pd.Series(rng.normal(8, 2, 500)))["drifted"] is True  # big shift
 
 
 # ---- false positives ----------------------------------------------------------------------------------------------

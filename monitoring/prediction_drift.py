@@ -9,10 +9,17 @@ weather changes with the season (a November log will differ from January-Februar
 and it is already an explicit model input. Raw zone ids are not compared at all: with ~260 categories and a few
 hundred requests almost every id is rare, so a test on them would flag noise; distance carries the "where" signal.
 
-Per-column test: Kolmogorov-Smirnov at p < KS_ALPHA (0.003). Unlike Evidently's default fixed-distance rule, a
-p-value test accounts for the sample size, so a small window is not flagged by sampling noise alone. With three
-trigger columns the chance of a false ``dataset_drift`` is about 1% (tests/test_prediction_log.py measures it).
-dataset_drift is true when at least one trigger column drifts.
+Per-column test, in two parts. A trigger column drifts only when BOTH hold:
+  1. the difference is statistically significant: p < KS_ALPHA (0.003), which accounts for the sample size so a
+     small window is not flagged by sampling noise alone; and
+  2. the difference is big enough to matter: an effect size of at least EFFECT_FLOOR. A p-value alone flags a
+     negligible shift once the log is large (thousands of requests make any difference "significant").
+distance_km is continuous: Kolmogorov-Smirnov, effect = the KS statistic D. hour and dow are discrete (many ties,
+which the KS test handles badly), so they are binned (hour into 3-hour blocks, dow as the 7 weekdays) and compared
+with a chi-square test, effect = total variation distance between the two bin distributions (0 = identical,
+1 = disjoint). With three trigger columns the chance of a false ``dataset_drift`` is about 1% or less
+(tests/test_prediction_log.py measures it). dataset_drift is true when at least one trigger column drifts.
+The weather (context) columns still use Evidently's KS decision and never trigger.
 
 Report (docs/contracts.md sections 5 and 8): ``month``, ``dataset_drift``, ``drifted_columns`` (trigger columns
 only), ``share_drifted``, ``context_drift`` (weather), ``data_quality`` (share of requests with missing weather and
@@ -26,7 +33,9 @@ import json
 import os
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
+from scipy import stats
 
 from features import WEATHER_COLUMNS, build_features, geo_features, load_weather
 from monitoring.drift import compute_drift
@@ -40,6 +49,8 @@ TRIGGER_COLUMNS = ["hour", "dow", "distance_km"]
 CONTEXT_COLUMNS = list(WEATHER_COLUMNS)
 LOG_DRIFT_COLUMNS = [*TRIGGER_COLUMNS, *CONTEXT_COLUMNS]
 KS_ALPHA = 0.003  # Bonferroni-style: 3 trigger columns -> about 1% chance of a false dataset_drift
+EFFECT_FLOOR = {"hour": 0.10, "dow": 0.10, "distance_km": 0.10}  # TV distance for hour/dow, KS statistic for distance
+HOUR_BIN_HOURS = 3  # hour of day is compared in 3-hour blocks (8 bins), so each bin has enough requests
 MISSING_WEATHER_ALERT = 0.20
 INSUFFICIENT = "insufficient data"
 
@@ -69,8 +80,28 @@ def data_quality(current: pd.DataFrame) -> dict:
     return {"share_missing_weather": round(share, 4), "alert": share > MISSING_WEATHER_ALERT}
 
 
+def trigger_test(column: str, reference: pd.Series, current: pd.Series) -> dict:
+    """Significance (p_value) and size (effect) of the shift in one trigger column, and whether it counts as drift."""
+    ref, cur = reference.dropna(), current.dropna()
+    if column == "distance_km":
+        res = stats.ks_2samp(cur, ref)
+        p_value, effect = float(res.pvalue), float(res.statistic)
+    else:
+        step = HOUR_BIN_HOURS if column == "hour" else 1
+        bins = sorted(set((ref // step).astype(int)) | set((cur // step).astype(int)))
+        table = np.array([[int(((s // step).astype(int) == b).sum()) for b in bins] for s in (ref, cur)])
+        table = table[:, table.sum(axis=0) > 0]
+        if table.shape[1] < 2 or table.sum(axis=1).min() == 0:  # a single category, or an empty side: nothing to compare
+            p_value, effect = 1.0, 0.0
+        else:
+            p_value = float(stats.chi2_contingency(table)[1])
+            effect = float(0.5 * np.abs(table[0] / table[0].sum() - table[1] / table[1].sum()).sum())
+    return {"p_value": p_value, "effect": round(effect, 4), "effect_floor": EFFECT_FLOOR[column],
+            "drifted": bool(p_value < KS_ALPHA and effect >= EFFECT_FLOOR[column])}
+
+
 def _report(status: str, trigger: list[str], context: list[str], compared_context: list[str], start: str, end: str,
-            n_rows: int, quality: dict) -> dict:
+            n_rows: int, quality: dict, tests: dict | None = None) -> dict:
     share = round(len(trigger) / len(TRIGGER_COLUMNS), 4)
     return {
         "month": start[:10] if start else "n/a",
@@ -79,6 +110,7 @@ def _report(status: str, trigger: list[str], context: list[str], compared_contex
         "context_drift": {"columns": compared_context, "drifted_columns": context,
                           "share_drifted": round(len(context) / max(len(compared_context), 1), 4)},
         "data_quality": quality,
+        "trigger_tests": tests or {},  # per trigger column: p_value, effect, effect_floor, drifted (additive key)
         "share_drifted_features": share, "drifted_features": trigger,  # keys already read by flows/retrain.py
         "window_start": start, "window_end": end, "n_rows": n_rows, "min_rows": MIN_ROWS, "status": status,
     }
@@ -97,9 +129,11 @@ def check_log_drift(reference: pd.DataFrame, log: pd.DataFrame, min_rows: int = 
     compared = [c for c in LOG_DRIFT_COLUMNS if not current[c].isna().all()]
     result = compute_drift(reference, current, start, end, columns=compared, html_path=html_path,
                            method="ks", threshold=KS_ALPHA)
-    drifted = set(result["drifted_features"])
-    return _report("ok", sorted(drifted & set(TRIGGER_COLUMNS)), sorted(drifted & set(CONTEXT_COLUMNS)),
-                   [c for c in compared if c in CONTEXT_COLUMNS], start, end, n, quality)
+    drifted = set(result["drifted_features"])  # Evidently's KS decision: used for the weather (context) columns only
+    tests = {c: trigger_test(c, reference[c], current[c]) for c in TRIGGER_COLUMNS if c in compared}
+    trigger = sorted(c for c, test in tests.items() if test["drifted"])
+    return _report("ok", trigger, sorted(drifted & set(CONTEXT_COLUMNS)),
+                   [c for c in compared if c in CONTEXT_COLUMNS], start, end, n, quality, tests)
 
 
 def run(log_path: Path, trips_path: Path, weather_path: Path, out: Path, min_rows: int = MIN_ROWS) -> dict:
