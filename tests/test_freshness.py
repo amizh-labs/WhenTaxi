@@ -107,6 +107,24 @@ def test_alert_rule_shape():
     assert RULE["for"] and RULE["annotations"]["summary"]
 
 
+UNKNOWN_RULE = next(r for r in RULES["groups"][0]["rules"] if r["alert"] == "EtaFeaturesUnknown")
+
+
+def test_unknown_alert_rule_shape_and_the_two_rules_never_overlap():
+    assert UNKNOWN_RULE["expr"] == "eta_feature_age_seconds < 0"
+    assert UNKNOWN_RULE["for"] and UNKNOWN_RULE["annotations"]["summary"]
+    assert [r["alert"] for r in RULES["groups"][0]["rules"]] == ["EtaFeaturesStale", "EtaFeaturesUnknown"]
+
+
+def test_unknown_age_fires_only_the_unknown_alert_and_a_known_age_fires_neither(tmp_path, feast_root):
+    with make_client(tmp_path) as client:  # no materialized.json: age is -1
+        age, threshold = sample(client, "eta_feature_age_seconds"), sample(client, "eta_feature_age_alert_threshold_seconds")
+        assert age < 0 and not age > threshold  # Unknown fires, Stale stays quiet
+        write_materialization_metadata(feast_root, now=time.time() - 60)
+        age = sample(client, "eta_feature_age_seconds")
+        assert not age < 0 and not age > threshold  # fresh: neither fires
+
+
 def test_alert_fires_when_the_threshold_is_below_the_current_age(tmp_path, feast_root, monkeypatch):
     write_materialization_metadata(feast_root, now=time.time() - 3600)  # one hour old
     monkeypatch.setenv("ETA_FEATURE_AGE_ALERT_SECONDS", "60")  # threshold well below the age

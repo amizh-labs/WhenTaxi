@@ -49,7 +49,7 @@ data:
   alerts.yml: |
     # Prometheus alert rules for the ETA API (no Alertmanager: alerts are visible in the Prometheus UI under /alerts).
     # The threshold is NOT in this file: each API pod exports it as eta_feature_age_alert_threshold_seconds, set from the
-    # env var ETA_FEATURE_AGE_ALERT_SECONDS (default 604800 = 7 days). -1 means "age unknown" and never fires.
+    # env var ETA_FEATURE_AGE_ALERT_SECONDS (default 604800 = 7 days). -1 means "age unknown": EtaFeaturesStale never fires on it, EtaFeaturesUnknown does.
     # The same group is embedded in k8s/prometheus.yaml (a test keeps both identical).
     groups:
       - name: eta-freshness
@@ -61,6 +61,16 @@ data:
             annotations:
               summary: "Rolling features are older than the allowed age on {{ $labels.instance }}"
               description: "Feast store materialized {{ $value | humanizeDuration }} ago; re-run features.store.materialize."
+
+          # -1 means "age unknown" (no or unreadable materialized.json). EtaFeaturesStale never fires on it, so without
+          # this rule a store that was never materialized (or whose metadata file was lost) would raise no alert at all.
+          - alert: EtaFeaturesUnknown
+            expr: eta_feature_age_seconds < 0
+            for: 5m
+            labels: {severity: warning}
+            annotations:
+              summary: "Feature age is unknown on {{ $labels.instance }}"
+              description: "No readable materialized.json in the Feast store, so freshness cannot be checked; run features.store.materialize."
 ---
 apiVersion: apps/v1
 kind: Deployment
