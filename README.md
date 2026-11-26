@@ -113,3 +113,20 @@ The check is split in two on purpose:
 - Re-materialize the Feast store on a schedule and alert on its age (the alert exists; the schedule does not).
 - More winter data and a weather-aware model, only if weather sensitivity is wanted.
 
+## Demo UI (Streamlit)
+
+A small web page for trying the API: pick a pickup zone, a dropoff zone and a date and time, press **Predict ETA**, and it
+shows the predicted minutes, the model version, the weather source, the straight-line distance between the zone centroids
+(computed in the page, never sent to the API), a map of the two zones and a history of the session. It is a **replay demo**,
+not a live ETA service: the model's rolling traffic features come from a stored snapshot (see Limitations).
+
+```
+docker compose up --build        # then open http://localhost:8501
+```
+
+The stack needs a trained champion model first (see the comments at the top of `docker-compose.yml`). To run the page without
+Docker: `pip install -r ui/requirements.txt` then `streamlit run ui/app.py` (set `API_URL` if the API is not on
+`http://localhost:8000`). The UI lives in `ui/` with its own requirements and image and is never imported by `src/`;
+`ui/zones.csv` is regenerated with `python scripts/build_ui_zones.py`. Tests: `pip install -r ui/requirements.txt pytest`
+then `pytest ui/tests`.
+

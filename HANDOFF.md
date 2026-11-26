@@ -103,7 +103,8 @@ register one extra challenger version.
 | File | Purpose |
 |---|---|
 | `Dockerfile` | **GEO.** python:3.11-slim + libgomp1, installs `.[serving]`, serves uvicorn on 8000. |
-| `docker-compose.yml` | Local stack: MLflow (`--allowed-hosts`), Prefect, API, Prometheus, Grafana. |
+| `docker-compose.yml` | Local stack: MLflow (`--allowed-hosts`), Prefect, API, Prometheus, Grafana, and the demo UI (`ui`, port 8501). |
+| `ui/` | Streamlit demo UI, owned by both: `app.py`, `zones.csv` (built by `scripts/build_ui_zones.py`), `requirements.txt` (streamlit, requests, pandas only), `Dockerfile`, `tests/` (AppTest, mocked HTTP). Calls `POST /predict` only; never imports `src/`; not installed by any extra. CI job `ui-tests` installs only `ui/requirements.txt`. |
 
 ## Tests for the A areas
 `tests/test_validation.py`, `tests/test_data_checks.py`, `tests/test_training.py` (**GEO**: two new tests), `tests/test_serving.py`,

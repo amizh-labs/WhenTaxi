@@ -1,0 +1,264 @@
+LocationID,label,Borough,Zone,lat,lon
+3,Bronx - Allerton/Pelham Gardens,Bronx,Allerton/Pelham Gardens,40.864474,-73.847422
+18,Bronx - Bedford Park,Bronx,Bedford Park,40.867682,-73.890184
+20,Bronx - Belmont,Bronx,Belmont,40.857779,-73.885867
+31,Bronx - Bronx Park,Bronx,Bronx Park,40.857746,-73.875476
+32,Bronx - Bronxdale,Bronx,Bronxdale,40.864002,-73.864901
+46,Bronx - City Island,Bronx,City Island,40.849086,-73.781988
+47,Bronx - Claremont/Bathgate,Bronx,Claremont/Bathgate,40.842748,-73.900317
+51,Bronx - Co-Op City,Bronx,Co-Op City,40.873972,-73.828263
+58,Bronx - Country Club,Bronx,Country Club,40.841452,-73.820393
+59,Bronx - Crotona Park,Bronx,Crotona Park,40.83855,-73.894986
+60,Bronx - Crotona Park East,Bronx,Crotona Park East,40.83399,-73.8859
+69,Bronx - East Concourse/Concourse Village,Bronx,East Concourse/Concourse Village,40.831416,-73.91503
+78,Bronx - East Tremont,Bronx,East Tremont,40.84496,-73.885522
+81,Bronx - Eastchester,Bronx,Eastchester,40.880935,-73.836644
+94,Bronx - Fordham South,Bronx,Fordham South,40.858155,-73.899536
+119,Bronx - Highbridge,Bronx,Highbridge,40.837827,-73.926158
+126,Bronx - Hunts Point,Bronx,Hunts Point,40.812074,-73.885537
+136,Bronx - Kingsbridge Heights,Bronx,Kingsbridge Heights,40.865264,-73.905911
+147,Bronx - Longwood,Bronx,Longwood,40.819676,-73.898957
+159,Bronx - Melrose South,Bronx,Melrose South,40.81826,-73.912849
+167,Bronx - Morrisania/Melrose,Bronx,Morrisania/Melrose,40.827513,-73.902352
+168,Bronx - Mott Haven/Port Morris,Bronx,Mott Haven/Port Morris,40.807347,-73.916822
+169,Bronx - Mount Hope,Bronx,Mount Hope,40.849058,-73.905122
+174,Bronx - Norwood,Bronx,Norwood,40.877137,-73.879022
+182,Bronx - Parkchester,Bronx,Parkchester,40.837749,-73.857987
+183,Bronx - Pelham Bay,Bronx,Pelham Bay,40.849172,-73.831582
+184,Bronx - Pelham Bay Park,Bronx,Pelham Bay Park,40.868275,-73.807858
+185,Bronx - Pelham Parkway,Bronx,Pelham Parkway,40.854405,-73.854394
+199,Bronx - Rikers Island,Bronx,Rikers Island,40.791133,-73.882658
+200,Bronx - Riverdale/North Riverdale/Fieldston,Bronx,Riverdale/North Riverdale/Fieldston,40.899528,-73.906988
+208,Bronx - Schuylerville/Edgewater Park,Bronx,Schuylerville/Edgewater Park,40.823318,-73.823539
+212,Bronx - Soundview/Bruckner,Bronx,Soundview/Bruckner,40.827902,-73.86968
+213,Bronx - Soundview/Castle Hill,Bronx,Soundview/Castle Hill,40.817859,-73.858135
+220,Bronx - Spuyten Duyvil/Kingsbridge,Bronx,Spuyten Duyvil/Kingsbridge,40.882403,-73.910665
+235,Bronx - University Heights/Morris Heights,Bronx,University Heights/Morris Heights,40.852521,-73.915976
+240,Bronx - Van Cortlandt Park,Bronx,Van Cortlandt Park,40.894599,-73.881977
+241,Bronx - Van Cortlandt Village,Bronx,Van Cortlandt Village,40.876512,-73.89562
+242,Bronx - Van Nest/Morris Park,Bronx,Van Nest/Morris Park,40.846783,-73.850671
+247,Bronx - West Concourse,Bronx,West Concourse,40.828987,-73.92441
+248,Bronx - West Farms/Bronx River,Bronx,West Farms/Bronx River,40.834165,-73.87229
+250,Bronx - Westchester Village/Unionport,Bronx,Westchester Village/Unionport,40.832101,-73.848641
+254,Bronx - Williamsbridge/Olinville,Bronx,Williamsbridge/Olinville,40.882157,-73.858949
+259,Bronx - Woodlawn/Wakefield,Bronx,Woodlawn/Wakefield,40.897932,-73.852215
+11,Brooklyn - Bath Beach,Brooklyn,Bath Beach,40.604273,-74.007488
+14,Brooklyn - Bay Ridge,Brooklyn,Bay Ridge,40.624834,-74.029893
+17,Brooklyn - Bedford,Brooklyn,Bedford,40.691507,-73.949905
+21,Brooklyn - Bensonhurst East,Brooklyn,Bensonhurst East,40.601429,-73.983538
+22,Brooklyn - Bensonhurst West,Brooklyn,Bensonhurst West,40.612218,-73.995259
+25,Brooklyn - Boerum Hill,Brooklyn,Boerum Hill,40.685634,-73.986114
+26,Brooklyn - Borough Park,Brooklyn,Borough Park,40.630949,-73.988661
+29,Brooklyn - Brighton Beach,Brooklyn,Brighton Beach,40.580922,-73.961217
+33,Brooklyn - Brooklyn Heights,Brooklyn,Brooklyn Heights,40.695798,-73.99525
+34,Brooklyn - Brooklyn Navy Yard,Brooklyn,Brooklyn Navy Yard,40.700856,-73.971189
+35,Brooklyn - Brownsville,Brooklyn,Brownsville,40.664003,-73.910258
+36,Brooklyn - Bushwick North,Brooklyn,Bushwick North,40.700522,-73.91771
+37,Brooklyn - Bushwick South,Brooklyn,Bushwick South,40.694994,-73.922237
+39,Brooklyn - Canarsie,Brooklyn,Canarsie,40.638037,-73.899735
+40,Brooklyn - Carroll Gardens,Brooklyn,Carroll Gardens,40.679199,-73.995956
+49,Brooklyn - Clinton Hill,Brooklyn,Clinton Hill,40.687967,-73.962363
+52,Brooklyn - Cobble Hill,Brooklyn,Cobble Hill,40.686651,-73.996724
+54,Brooklyn - Columbia Street,Brooklyn,Columbia Street,40.687201,-74.002911
+55,Brooklyn - Coney Island,Brooklyn,Coney Island,40.576961,-73.987944
+61,Brooklyn - Crown Heights North,Brooklyn,Crown Heights North,40.67447,-73.939287
+62,Brooklyn - Crown Heights South,Brooklyn,Crown Heights South,40.666541,-73.948788
+63,Brooklyn - Cypress Hills,Brooklyn,Cypress Hills,40.68384,-73.878173
+66,Brooklyn - DUMBO/Vinegar Hill,Brooklyn,DUMBO/Vinegar Hill,40.702259,-73.985702
+65,Brooklyn - Downtown Brooklyn/MetroTech,Brooklyn,Downtown Brooklyn/MetroTech,40.695337,-73.986086
+67,Brooklyn - Dyker Heights,Brooklyn,Dyker Heights,40.619619,-74.013802
+71,Brooklyn - East Flatbush/Farragut,Brooklyn,East Flatbush/Farragut,40.644288,-73.937966
+72,Brooklyn - East Flatbush/Remsen Village,Brooklyn,East Flatbush/Remsen Village,40.652364,-73.922251
+76,Brooklyn - East New York,Brooklyn,East New York,40.660934,-73.87682
+77,Brooklyn - East New York/Pennsylvania Avenue,Brooklyn,East New York/Pennsylvania Avenue,40.666559,-73.895364
+80,Brooklyn - East Williamsburg,Brooklyn,East Williamsburg,40.71537,-73.936794
+85,Brooklyn - Erasmus,Brooklyn,Erasmus,40.646116,-73.951623
+89,Brooklyn - Flatbush/Ditmas Park,Brooklyn,Flatbush/Ditmas Park,40.6379,-73.960968
+91,Brooklyn - Flatlands,Brooklyn,Flatlands,40.626272,-73.930097
+97,Brooklyn - Fort Greene,Brooklyn,Fort Greene,40.690787,-73.974882
+106,Brooklyn - Gowanus,Brooklyn,Gowanus,40.673513,-73.990648
+108,Brooklyn - Gravesend,Brooklyn,Gravesend,40.588404,-73.981431
+111,Brooklyn - Green-Wood Cemetery,Brooklyn,Green-Wood Cemetery,40.652137,-73.990234
+112,Brooklyn - Greenpoint,Brooklyn,Greenpoint,40.729506,-73.94954
+123,Brooklyn - Homecrest,Brooklyn,Homecrest,40.599954,-73.964334
+133,Brooklyn - Kensington,Brooklyn,Kensington,40.64059,-73.976199
+149,Brooklyn - Madison,Brooklyn,Madison,40.604913,-73.948136
+150,Brooklyn - Manhattan Beach,Brooklyn,Manhattan Beach,40.580473,-73.943629
+154,Brooklyn - Marine Park/Floyd Bennett Field,Brooklyn,Marine Park/Floyd Bennett Field,40.593571,-73.902595
+155,Brooklyn - Marine Park/Mill Basin,Brooklyn,Marine Park/Mill Basin,40.614591,-73.915277
+165,Brooklyn - Midwood,Brooklyn,Midwood,40.620924,-73.956824
+177,Brooklyn - Ocean Hill,Brooklyn,Ocean Hill,40.676644,-73.913632
+178,Brooklyn - Ocean Parkway South,Brooklyn,Ocean Parkway South,40.617315,-73.970326
+181,Brooklyn - Park Slope,Brooklyn,Park Slope,40.670374,-73.981414
+189,Brooklyn - Prospect Heights,Brooklyn,Prospect Heights,40.677635,-73.967587
+190,Brooklyn - Prospect Park,Brooklyn,Prospect Park,40.661622,-73.968914
+188,Brooklyn - Prospect-Lefferts Gardens,Brooklyn,Prospect-Lefferts Gardens,40.658745,-73.947442
+195,Brooklyn - Red Hook,Brooklyn,Red Hook,40.675549,-74.009178
+210,Brooklyn - Sheepshead Bay,Brooklyn,Sheepshead Bay,40.592024,-73.940507
+217,Brooklyn - South Williamsburg,Brooklyn,South Williamsburg,40.703916,-73.958597
+222,Brooklyn - Starrett City,Brooklyn,Starrett City,40.647527,-73.882413
+225,Brooklyn - Stuyvesant Heights,Brooklyn,Stuyvesant Heights,40.688168,-73.931888
+227,Brooklyn - Sunset Park East,Brooklyn,Sunset Park East,40.641886,-74.004653
+228,Brooklyn - Sunset Park West,Brooklyn,Sunset Park West,40.652354,-74.011273
+255,Brooklyn - Williamsburg (North Side),Brooklyn,Williamsburg (North Side),40.718804,-73.957418
+256,Brooklyn - Williamsburg (South Side),Brooklyn,Williamsburg (South Side),40.71088,-73.959905
+257,Brooklyn - Windsor Terrace,Brooklyn,Windsor Terrace,40.653612,-73.977982
+1,EWR - Newark Airport,EWR,Newark Airport,40.69183,-74.174002
+4,Manhattan - Alphabet City,Manhattan,Alphabet City,40.723752,-73.976968
+12,Manhattan - Battery Park,Manhattan,Battery Park,40.702946,-74.015563
+13,Manhattan - Battery Park City,Manhattan,Battery Park City,40.712038,-74.016079
+24,Manhattan - Bloomingdale,Manhattan,Bloomingdale,40.801971,-73.965479
+41,Manhattan - Central Harlem,Manhattan,Central Harlem,40.804334,-73.951292
+42,Manhattan - Central Harlem North,Manhattan,Central Harlem North,40.818257,-73.940772
+43,Manhattan - Central Park,Manhattan,Central Park,40.782477,-73.965555
+45,Manhattan - Chinatown,Manhattan,Chinatown,40.712459,-73.998151
+48,Manhattan - Clinton East,Manhattan,Clinton East,40.762253,-73.989845
+50,Manhattan - Clinton West,Manhattan,Clinton West,40.766238,-73.995135
+68,Manhattan - East Chelsea,Manhattan,East Chelsea,40.748427,-73.999918
+74,Manhattan - East Harlem North,Manhattan,East Harlem North,40.801169,-73.937346
+75,Manhattan - East Harlem South,Manhattan,East Harlem South,40.790011,-73.94575
+79,Manhattan - East Village,Manhattan,East Village,40.72762,-73.985937
+87,Manhattan - Financial District North,Manhattan,Financial District North,40.706808,-74.007496
+88,Manhattan - Financial District South,Manhattan,Financial District South,40.703358,-74.011515
+90,Manhattan - Flatiron,Manhattan,Flatiron,40.742279,-73.996971
+100,Manhattan - Garment District,Manhattan,Garment District,40.753513,-73.988787
+103,Manhattan - Governor's Island/Ellis Island/Liberty Island (103),Manhattan,Governor's Island/Ellis Island/Liberty Island,40.68986,-74.045288
+104,Manhattan - Governor's Island/Ellis Island/Liberty Island (104),Manhattan,Governor's Island/Ellis Island/Liberty Island,40.698769,-74.040771
+105,Manhattan - Governor's Island/Ellis Island/Liberty Island (105),Manhattan,Governor's Island/Ellis Island/Liberty Island,40.688784,-74.019073
+107,Manhattan - Gramercy,Manhattan,Gramercy,40.736824,-73.984052
+113,Manhattan - Greenwich Village North,Manhattan,Greenwich Village North,40.732579,-73.994305
+114,Manhattan - Greenwich Village South,Manhattan,Greenwich Village South,40.72834,-73.99738
+116,Manhattan - Hamilton Heights,Manhattan,Hamilton Heights,40.827013,-73.948522
+120,Manhattan - Highbridge Park,Manhattan,Highbridge Park,40.846667,-73.930183
+125,Manhattan - Hudson Sq,Manhattan,Hudson Sq,40.72629,-74.007486
+127,Manhattan - Inwood,Manhattan,Inwood,40.866075,-73.919308
+128,Manhattan - Inwood Hill Park,Manhattan,Inwood Hill Park,40.872379,-73.92437
+137,Manhattan - Kips Bay,Manhattan,Kips Bay,40.740439,-73.976495
+140,Manhattan - Lenox Hill East,Manhattan,Lenox Hill East,40.765484,-73.954739
+141,Manhattan - Lenox Hill West,Manhattan,Lenox Hill West,40.766948,-73.959635
+142,Manhattan - Lincoln Square East,Manhattan,Lincoln Square East,40.773633,-73.981532
+143,Manhattan - Lincoln Square West,Manhattan,Lincoln Square West,40.775965,-73.987646
+144,Manhattan - Little Italy/NoLiTa,Manhattan,Little Italy/NoLiTa,40.720889,-73.996919
+148,Manhattan - Lower East Side,Manhattan,Lower East Side,40.718938,-73.990896
+151,Manhattan - Manhattan Valley,Manhattan,Manhattan Valley,40.797962,-73.968168
+152,Manhattan - Manhattanville,Manhattan,Manhattanville,40.817975,-73.953782
+153,Manhattan - Marble Hill,Manhattan,Marble Hill,40.875968,-73.910379
+158,Manhattan - Meatpacking/West Village West,Manhattan,Meatpacking/West Village West,40.735035,-74.008984
+161,Manhattan - Midtown Center,Manhattan,Midtown Center,40.758028,-73.977698
+162,Manhattan - Midtown East,Manhattan,Midtown East,40.756688,-73.972356
+163,Manhattan - Midtown North,Manhattan,Midtown North,40.764421,-73.977569
+164,Manhattan - Midtown South,Manhattan,Midtown South,40.748575,-73.985156
+166,Manhattan - Morningside Heights,Manhattan,Morningside Heights,40.809457,-73.961764
+170,Manhattan - Murray Hill,Manhattan,Murray Hill,40.747746,-73.978492
+186,Manhattan - Penn Station/Madison Sq West,Manhattan,Penn Station/Madison Sq West,40.748497,-73.992438
+194,Manhattan - Randalls Island,Manhattan,Randalls Island,40.791,-73.924597
+202,Manhattan - Roosevelt Island,Manhattan,Roosevelt Island,40.761899,-73.949953
+209,Manhattan - Seaport,Manhattan,Seaport,40.709073,-74.003664
+211,Manhattan - SoHo,Manhattan,SoHo,40.723888,-74.001538
+224,Manhattan - Stuy Town/Peter Cooper Village,Manhattan,Stuy Town/Peter Cooper Village,40.731821,-73.976598
+229,Manhattan - Sutton Place/Turtle Bay North,Manhattan,Sutton Place/Turtle Bay North,40.756729,-73.965146
+230,Manhattan - Times Sq/Theatre District,Manhattan,Times Sq/Theatre District,40.759818,-73.984197
+231,Manhattan - TriBeCa/Civic Center,Manhattan,TriBeCa/Civic Center,40.717773,-74.00788
+232,Manhattan - Two Bridges/Seward Park,Manhattan,Two Bridges/Seward Park,40.714732,-73.983025
+233,Manhattan - UN/Turtle Bay South,Manhattan,UN/Turtle Bay South,40.749914,-73.970443
+234,Manhattan - Union Sq,Manhattan,Union Sq,40.740337,-73.990458
+236,Manhattan - Upper East Side North,Manhattan,Upper East Side North,40.780436,-73.957012
+237,Manhattan - Upper East Side South,Manhattan,Upper East Side South,40.768615,-73.965635
+238,Manhattan - Upper West Side North,Manhattan,Upper West Side North,40.791705,-73.973049
+239,Manhattan - Upper West Side South,Manhattan,Upper West Side South,40.783961,-73.978632
+243,Manhattan - Washington Heights North,Manhattan,Washington Heights North,40.857108,-73.932832
+244,Manhattan - Washington Heights South,Manhattan,Washington Heights South,40.841708,-73.941399
+246,Manhattan - West Chelsea/Hudson Yards,Manhattan,West Chelsea/Hudson Yards,40.753309,-74.004016
+249,Manhattan - West Village,Manhattan,West Village,40.734576,-74.002875
+261,Manhattan - World Trade Center,Manhattan,World Trade Center,40.709139,-74.013023
+262,Manhattan - Yorkville East,Manhattan,Yorkville East,40.775932,-73.94651
+263,Manhattan - Yorkville West,Manhattan,Yorkville West,40.778766,-73.95101
+7,Queens - Astoria,Queens,Astoria,40.761493,-73.919694
+8,Queens - Astoria Park,Queens,Astoria Park,40.778559,-73.923086
+9,Queens - Auburndale,Queens,Auburndale,40.751034,-73.787949
+10,Queens - Baisley Park,Queens,Baisley Park,40.678953,-73.790987
+15,Queens - Bay Terrace/Fort Totten,Queens,Bay Terrace/Fort Totten,40.783333,-73.785973
+16,Queens - Bayside,Queens,Bayside,40.762738,-73.773421
+19,Queens - Bellerose,Queens,Bellerose,40.735487,-73.726655
+27,Queens - Breezy Point/Fort Tilden/Riis Beach,Queens,Breezy Point/Fort Tilden/Riis Beach,40.559135,-73.906912
+28,Queens - Briarwood/Jamaica Hills,Queens,Briarwood/Jamaica Hills,40.711596,-73.808729
+30,Queens - Broad Channel,Queens,Broad Channel,40.603687,-73.821928
+38,Queens - Cambria Heights,Queens,Cambria Heights,40.694341,-73.735554
+53,Queens - College Point,Queens,College Point,40.780912,-73.842813
+56,Queens - Corona (56),Queens,Corona,40.741407,-73.858845
+57,Queens - Corona (57),Queens,Corona,40.751819,-73.853582
+64,Queens - Douglaston,Queens,Douglaston,40.760615,-73.739337
+70,Queens - East Elmhurst,Queens,East Elmhurst,40.763352,-73.868395
+73,Queens - East Flushing,Queens,East Flushing,40.754109,-73.807294
+82,Queens - Elmhurst,Queens,Elmhurst,40.739495,-73.877118
+83,Queens - Elmhurst/Maspeth,Queens,Elmhurst/Maspeth,40.738324,-73.892173
+86,Queens - Far Rockaway,Queens,Far Rockaway,40.602433,-73.755243
+92,Queens - Flushing,Queens,Flushing,40.761101,-73.828859
+93,Queens - Flushing Meadows-Corona Park,Queens,Flushing Meadows-Corona Park,40.740674,-73.840865
+95,Queens - Forest Hills,Queens,Forest Hills,40.721432,-73.847669
+96,Queens - Forest Park/Highland Park,Queens,Forest Park/Highland Park,40.697002,-73.871561
+98,Queens - Fresh Meadows,Queens,Fresh Meadows,40.734463,-73.777253
+101,Queens - Glen Oaks,Queens,Glen Oaks,40.745993,-73.711025
+102,Queens - Glendale,Queens,Glendale,40.703546,-73.875737
+117,Queens - Hammels/Arverne,Queens,Hammels/Arverne,40.594059,-73.789623
+121,Queens - Hillcrest/Pomonok,Queens,Hillcrest/Pomonok,40.728333,-73.802444
+122,Queens - Hollis,Queens,Hollis,40.710639,-73.761137
+124,Queens - Howard Beach,Queens,Howard Beach,40.658248,-73.844918
+132,Queens - JFK Airport,Queens,JFK Airport,40.646985,-73.78653
+129,Queens - Jackson Heights,Queens,Jackson Heights,40.757312,-73.885317
+130,Queens - Jamaica,Queens,Jamaica,40.704369,-73.793981
+2,Queens - Jamaica Bay,Queens,Jamaica Bay,40.616746,-73.8313
+131,Queens - Jamaica Estates,Queens,Jamaica Estates,40.720655,-73.776101
+134,Queens - Kew Gardens,Queens,Kew Gardens,40.708051,-73.828712
+135,Queens - Kew Gardens Hills,Queens,Kew Gardens Hills,40.728377,-73.821195
+138,Queens - LaGuardia Airport,Queens,LaGuardia Airport,40.774376,-73.873628
+139,Queens - Laurelton,Queens,Laurelton,40.677098,-73.744235
+145,Queens - Long Island City/Hunters Point,Queens,Long Island City/Hunters Point,40.745379,-73.948892
+146,Queens - Long Island City/Queens Plaza,Queens,Long Island City/Queens Plaza,40.754243,-73.934829
+157,Queens - Maspeth,Queens,Maspeth,40.723995,-73.902331
+160,Queens - Middle Village,Queens,Middle Village,40.718337,-73.880051
+171,Queens - Murray Hill-Queens,Queens,Murray Hill-Queens,40.768352,-73.809545
+173,Queens - North Corona,Queens,North Corona,40.752579,-73.863038
+175,Queens - Oakland Gardens,Queens,Oakland Gardens,40.742671,-73.754622
+179,Queens - Old Astoria,Queens,Old Astoria,40.77157,-73.928333
+180,Queens - Ozone Park,Queens,Ozone Park,40.675595,-73.847043
+191,Queens - Queens Village,Queens,Queens Village,40.715454,-73.741532
+192,Queens - Queensboro Hill,Queens,Queensboro Hill,40.743752,-73.815229
+193,Queens - Queensbridge/Ravenswood,Queens,Queensbridge/Ravenswood,40.760313,-73.941997
+196,Queens - Rego Park,Queens,Rego Park,40.726155,-73.863338
+197,Queens - Richmond Hill,Queens,Richmond Hill,40.694542,-73.830924
+198,Queens - Ridgewood,Queens,Ridgewood,40.706527,-73.901709
+201,Queens - Rockaway Park,Queens,Rockaway Park,40.577983,-73.843454
+203,Queens - Rosedale,Queens,Rosedale,40.657852,-73.739474
+205,Queens - Saint Albans,Queens,Saint Albans,40.691201,-73.763146
+207,Queens - Saint Michaels Cemetery/Woodside,Queens,Saint Michaels Cemetery/Woodside,40.763986,-73.899353
+215,Queens - South Jamaica,Queens,South Jamaica,40.694428,-73.790965
+216,Queens - South Ozone Park,Queens,South Ozone Park,40.676154,-73.819459
+218,Queens - Springfield Gardens North,Queens,Springfield Gardens North,40.67209,-73.773036
+219,Queens - Springfield Gardens South,Queens,Springfield Gardens South,40.662186,-73.764505
+223,Queens - Steinway,Queens,Steinway,40.777427,-73.905407
+226,Queens - Sunnyside,Queens,Sunnyside,40.737698,-73.924673
+252,Queens - Whitestone,Queens,Whitestone,40.788193,-73.815657
+253,Queens - Willets Point,Queens,Willets Point,40.760631,-73.841244
+258,Queens - Woodhaven,Queens,Woodhaven,40.688721,-73.855767
+260,Queens - Woodside,Queens,Woodside,40.744234,-73.906307
+5,Staten Island - Arden Heights,Staten Island,Arden Heights,40.552659,-74.188485
+6,Staten Island - Arrochar/Fort Wadsworth,Staten Island,Arrochar/Fort Wadsworth,40.600324,-74.07177
+23,Staten Island - Bloomfield/Emerson Hill,Staten Island,Bloomfield/Emerson Hill,40.606448,-74.170885
+44,Staten Island - Charleston/Tottenville,Staten Island,Charleston/Tottenville,40.525491,-74.233535
+84,Staten Island - Eltingville/Annadale/Prince's Bay,Staten Island,Eltingville/Annadale/Prince's Bay,40.528686,-74.187679
+99,Staten Island - Freshkills Park,Staten Island,Freshkills Park,40.576773,-74.186421
+109,Staten Island - Great Kills,Staten Island,Great Kills,40.551862,-74.15089
+110,Staten Island - Great Kills Park,Staten Island,Great Kills Park,40.54578,-74.128343
+115,Staten Island - Grymes Hill/Clifton,Staten Island,Grymes Hill/Clifton,40.617971,-74.087839
+118,Staten Island - Heartland Village/Todt Hill,Staten Island,Heartland Village/Todt Hill,40.586555,-74.132985
+156,Staten Island - Mariners Harbor,Staten Island,Mariners Harbor,40.631308,-74.167234
+172,Staten Island - New Dorp/Midland Beach,Staten Island,New Dorp/Midland Beach,40.571769,-74.105019
+176,Staten Island - Oakwood,Staten Island,Oakwood,40.561994,-74.122583
+187,Staten Island - Port Richmond,Staten Island,Port Richmond,40.628166,-74.140789
+204,Staten Island - Rossville/Woodrow,Staten Island,Rossville/Woodrow,40.540333,-74.207826
+206,Staten Island - Saint George/New Brighton,Staten Island,Saint George/New Brighton,40.638973,-74.102314
+214,Staten Island - South Beach/Dongan Hills,Staten Island,South Beach/Dongan Hills,40.586786,-74.085512
+221,Staten Island - Stapleton,Staten Island,Stapleton,40.618768,-74.073703
+245,Staten Island - West Brighton,Staten Island,West Brighton,40.630049,-74.10286
+251,Staten Island - Westerleigh,Staten Island,Westerleigh,40.61688,-74.125348

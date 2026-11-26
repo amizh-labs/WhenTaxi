@@ -59,6 +59,14 @@ services:
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on: [prometheus]
 
+  ui:
+    # Demo UI (Streamlit) in its own image: http://localhost:8501. Calls the API over the compose network.
+    build: ./ui
+    ports: ["8501:8501"]
+    environment:
+      API_URL: http://api:8000
+    depends_on: [api]
+
 volumes:
   mlflow-data:
   prefect-data:

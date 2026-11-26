@@ -68,3 +68,31 @@ jobs:
           tags: eta-api:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  ui-tests:
+    # The demo UI has its own requirements; this job installs ONLY ui/requirements.txt (+ pytest), never the
+    # platform package, so it proves the UI does not depend on src/. A skipped test fails the job (ui/tests/conftest.py).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: ui/requirements.txt
+      - name: Install (ui/requirements.txt only)
+        run: pip install -r ui/requirements.txt pytest
+      - name: UI tests
+        run: pytest ui/tests -q -rs
+
+  ui-docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ui
+          push: false
+          tags: eta-ui:ci
+
