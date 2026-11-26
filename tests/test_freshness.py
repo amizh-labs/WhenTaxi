@@ -170,3 +170,19 @@ def test_grafana_dashboard_has_a_feature_age_panel():
     exprs = " ".join(t["expr"] for t in panel["targets"])
     assert "eta_feature_age_seconds" in exprs and "eta_feature_age_alert_threshold_seconds" in exprs
     assert len({p["id"] for p in dashboard["panels"]}) == len(dashboard["panels"])  # ids stay unique
+
+
+def test_grafana_dashboard_panels_use_known_metrics_and_do_not_overlap():
+    dashboard = json.loads((ROOT / "monitoring" / "grafana" / "dashboards" / "eta.json").read_text())
+    known = {"eta_requests_total", "eta_request_latency_seconds_bucket", "eta_prediction_minutes_bucket",
+             "eta_prediction_minutes_sum", "eta_prediction_minutes_count", "eta_feature_age_seconds",
+             "eta_feature_age_alert_threshold_seconds", "ALERTS"}
+    cells = set()
+    for panel in dashboard["panels"]:
+        for target in panel["targets"]:
+            names = set(re.findall(r"\b(?:eta_[a-z_]+|ALERTS)\b", target["expr"]))
+            assert names and names <= known, (panel["title"], names - known)
+        g = panel["gridPos"]
+        panel_cells = {(x, y) for x in range(g["x"], g["x"] + g["w"]) for y in range(g["y"], g["y"] + g["h"])}
+        assert not panel_cells & cells, panel["title"]  # no two panels share a grid cell
+        cells |= panel_cells
