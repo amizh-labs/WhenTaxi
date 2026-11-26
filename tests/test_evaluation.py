@@ -98,3 +98,30 @@ def test_noop_when_challenger_is_champion(weather, tmp_path):
     train(trips, weather, ZONES, uri, params=STRONG)
     report = promote_if_better(trips[trips["month"] == "2026-03"], weather, uri)
     assert report["promoted"] is False and "already" in report["reasons"][0]
+
+
+def test_a_geo_model_can_be_evaluated():
+    """predict_frame must build the geo columns for a model trained with them (the shipped champion is one)."""
+    import lightgbm as lgb
+
+    from evaluation.compare import evaluate, predict_frame
+    from features import FEATURE_COLUMNS, GEO_COLUMNS, ROLLING_COLUMNS, build_features
+    from training.registry import LoadedModel
+
+    rng = np.random.default_rng(0)
+    n = 200
+    trips = pd.DataFrame({
+        "pickup_ts": pd.Timestamp("2026-03-02") + pd.to_timedelta(rng.integers(0, 3 * 1440, n), unit="m"),
+        "PULocationID": rng.integers(1, 100, n), "DOLocationID": rng.integers(1, 100, n),
+        "duration_min": rng.uniform(5, 40, n)})
+    hours = pd.date_range("2026-03-01", periods=24 * 10, freq="h")
+    weather = pd.DataFrame({"weather_hour": hours, **{c: 0.0 for c in WEATHER_COLUMNS}})
+    rolling = pd.DataFrame({c: 1.0 for c in ROLLING_COLUMNS}, index=trips.index)
+    x = build_features(trips, weather, ZONES, rolling, geo=True)
+    columns = FEATURE_COLUMNS + ROLLING_COLUMNS + GEO_COLUMNS
+    model = LoadedModel(model=lgb.LGBMRegressor(n_estimators=5, verbose=-1).fit(x[columns], x["duration_min"]),
+                        zone_categories=ZONES, version="1")
+    assert model.needs_geo
+    scored = predict_frame(model, trips, weather, trips)  # used to raise KeyError: distance_km not in index
+    assert len(scored) == n and scored["prediction"].notna().all()
+    assert evaluate(model, trips, weather, trips)["mae"] > 0

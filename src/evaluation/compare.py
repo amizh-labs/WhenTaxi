@@ -15,7 +15,7 @@ def predict_frame(model, trips: pd.DataFrame, weather: pd.DataFrame, history: pd
     pass earlier months too so the start of the evaluated month is not cold).
     """
     rolling = rolling_pair_features(trips if history is None else history, trips) if model.needs_rolling else None
-    features = build_features(trips, weather, model.zone_categories, rolling)
+    features = build_features(trips, weather, model.zone_categories, rolling, geo=getattr(model, "needs_geo", False))
     out = trips.copy()
     for col in ("temperature_2m", "precipitation", "snowfall", "wind_speed_10m"):
         out[col] = features[col]

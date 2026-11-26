@@ -23,3 +23,6 @@ mlflow.db
 # kept locally, not in the repo
 /CLAUDE.md
 /docs/contracts.md
+
+# Held-out months for demos, never committed
+/data/holdout/
