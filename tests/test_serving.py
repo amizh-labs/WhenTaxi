@@ -32,10 +32,10 @@ def body(**over):
 def test_predict_contract_and_weather_from_file(client):
     resp = client.post("/predict", json=body())
     assert resp.status_code == 200
-    assert resp.json() == {"eta_minutes": 18.5, "model_version": "7", "weather_source": "archive"}  # 0.5 snow + 10 + hour 8
+    assert resp.json() == {"eta_minutes": 18.5, "model_version": "7", "weather_source": "archive"}  # snowfall column 0.5 + 10 + hour 8
 
 
-def test_weather_override_for_snowstorm(client):
+def test_weather_override_reaches_the_model(client):
     resp = client.post("/predict", json=body(weather={"snowfall": 5.0}))
     assert resp.json()["eta_minutes"] == 23.0
 

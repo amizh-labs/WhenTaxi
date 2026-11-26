@@ -165,7 +165,7 @@ def test_window_drawn_from_the_reference_shows_no_drift(reference_log, reference
     assert result["dataset_drift"] is False and result["status"] == "ok" and result["n_rows"] == 600
 
 
-def test_skewed_batch_heavy_snow_and_only_airports_shows_drift(reference, tmp_path):
+def test_skewed_batch_heavy_weather_and_only_airports_shows_drift(reference, tmp_path):
     skewed = make_log(400, seed=2, zones=[1, 132, 138], snowfall=3.0)
     result = check_log_drift(reference, skewed, html_path=tmp_path / "r.html")
     assert result["dataset_drift"] is True
@@ -176,7 +176,7 @@ def test_skewed_batch_heavy_snow_and_only_airports_shows_drift(reference, tmp_pa
 
 # ---- single factors: each moves only its own column --------------------------------------------------------------
 
-def test_snowfall_only_is_context_and_never_triggers(reference):
+def test_one_weather_column_alone_is_context_and_never_triggers(reference):
     result = check_log_drift(reference, make_log(500, seed=11, snowfall=3.0))
     assert result["context_drift"]["drifted_columns"] == ["snowfall"]
     assert result["drifted_columns"] == [] and result["dataset_drift"] is False

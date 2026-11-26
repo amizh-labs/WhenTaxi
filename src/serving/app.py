@@ -2,7 +2,7 @@
 
 Contract: docs/contracts.md sections 3-4. Features are built with the SAME build_features
 and zone category list used in training. Weather for the pickup hour comes from the
-Open-Meteo file; a request may override weather values (used by the snowstorm demo).
+Open-Meteo file; a request may override weather values (a what-if / replay override).
 """
 import contextlib
 import os

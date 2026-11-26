@@ -2,7 +2,7 @@
 
 Compares a reference window (e.g. the validation month) with a current window of feature
 rows (+ duration_min when known). The dataset-level decision is ours, not Evidently's
-default "50% of columns" rule: one storm only moves a few columns, so we flag drift when
+default "50% of columns" rule: a single weather event only moves a few columns, so we flag drift when
 >= SHARE_THRESHOLD of the compared columns drift.
 """
 import argparse
