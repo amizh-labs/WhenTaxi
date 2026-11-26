@@ -7,8 +7,6 @@ Versioned data, a feature store, gated CI, canary rollouts that roll back on the
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![Stack](https://img.shields.io/badge/stack-DVC%20%7C%20Feast%20%7C%20MLflow%20%7C%20FastAPI%20%7C%20Argo%20Rollouts-informational)
 
-> **Scope note.** WhenTaxi is a *replay-driven* platform. It trains and evaluates on real NYC TLC trip records, takes live weather for near-present timestamps, and refreshes monthly as TLC publishes new files. It is not a live ETA service: no free source streams real taxi trips. See [Limitations](#limitations).
-
 ---
 
 ## Table of contents
@@ -22,15 +20,10 @@ Versioned data, a feature store, gated CI, canary rollouts that roll back on the
 7. [Monitoring and alerting](#monitoring-and-alerting)
 8. [API reference](#api-reference)
 9. [Getting started](#getting-started)
-10. [Demos](#demos)
-11. [Repository structure](#repository-structure)
-12. [Testing and quality](#testing-and-quality)
-13. [Limitations](#limitations)
-14. [Roadmap](#roadmap)
-15. [Project status](#project-status)
-16. [Team and ownership](#team-and-ownership)
-17. [Data sources](#data-sources)
-18. [Operational reference](#operational-reference)
+10. [Repository structure](#repository-structure)
+11. [Testing and quality](#testing-and-quality)
+12. [Team and ownership](#team-and-ownership)
+13. [Data sources](#data-sources)
 
 ---
 
@@ -46,7 +39,7 @@ Given a pickup zone, a dropoff zone, and a pickup time, WhenTaxi predicts the tr
 | Experiment tracking | MLflow runs, metrics, artifacts, and a model registry with `champion` and `challenger` aliases |
 | Change safety | A CI metric-regression gate and an Argo Rollouts canary that aborts automatically on bad releases |
 | Observability | Prometheus metrics, Grafana dashboards, drift reports on real requests, and feature-freshness alerts |
-| Automation | Prefect flows for retraining and scheduled drift checks, plus a monthly data refresh flow (see [Project status](#project-status)) |
+| Automation | Prefect flows for retraining and scheduled drift checks, plus a monthly data refresh flow |
 
 ### Key features
 
@@ -501,28 +494,6 @@ python k8s/demo.py down
 
 ---
 
-## Demos
-
-### Evening-rush surge (platform detects a shift and retrains)
-
-```bash
-python -m monitoring.surge_demo
-```
-
-Replays held-out April 2026 trips through `/predict` in two windows: as they are, and resampled toward evening hours with more airport trips (durations inflated 40%, labelled synthetic). Drift comes from the API's request log. MAE is computed offline with point-in-time features, because scoring replayed history through the live API would mix in the stale-snapshot effect described under Limitations. When drift or the MAE flag fires, the existing retrain flow trains a challenger against a throwaway registry; the real registry and `champion` alias are never touched. Output: a summary table and `data/processed/surge_demo_report.json`. It needs the April file at `data/holdout/yellow_tripdata_2026-04.parquet` (git-ignored); the commands are in `docs/RUNBOOK.md`.
-
-### Streamlit UI
-
-A page for trying the API: choose pickup and dropoff zones and a date and time, and it shows the predicted minutes, model version, weather source, the straight-line distance between zone centroids, a map, and a session history. It lives in `ui/` with its own requirements and image and is never imported by `src/`.
-
-```bash
-docker compose up --build   # then open http://localhost:8501
-```
-
-It is a replay demo, not a live ETA service. Tests: `pip install -r ui/requirements.txt pytest`, then `pytest ui/tests`.
-
----
-
 ## Repository structure
 
 ```
@@ -569,51 +540,7 @@ No test touches the real network; HTTP is mocked and a guard fixture makes any r
 
 ---
 
-## Limitations
-
-- **Replay, not live.** Trips are historical TLC files published monthly with a lag. Only the weather input can be live, and only for pickup times near today.
-- **Rolling features come from one snapshot.** `/predict` reads `avg_duration_1h`, `avg_duration_24h`, and `trip_count_24h` from the Feast online store as of the last materialization and ignores `pickup_ts`. Against point-in-time values on March trips, `avg_duration_24h` differs by about 2 minutes on average, and the 1-hour feature is present for 62% of requests versus 74% point-in-time. These features carry about 72% of model importance, so served predictions on historical timestamps are not directly comparable to the evaluation numbers. For that reason replay MAE is computed offline. The feature-age alerts exist to expose staleness.
-- **The model is largely weather-insensitive** (1.7% of importance). The platform detects distribution shifts; the model does not adapt to them.
-- **The canary sanity check compares mean predictions.** It catches shifted or broken models but not a model that is wrong trip by trip while matching on average. The held-out evaluation gate covers that case.
-- **Inconclusive canaries pause for a human** instead of rolling back automatically. A canary with no data is never promoted, but someone must run `abort` or `promote`.
-- **Replica-count approximation.** Canary percentages are exact only at 10 replicas.
-- **Thresholds are not tuned to this data.** For example, the day-of-week drift floor (0.10) sits close to the month-to-month weekday-mix difference (about 0.08 to 0.09).
-- **Local DVC remote.** The configured remote is a folder on one machine. A fresh clone rebuilds raw data with `scripts/download_data.py`.
-- **Single-instance prediction log.** SQLite with one writer; the cluster demo leaves it off and uses Prometheus metrics only.
-
----
-
-## Roadmap
-
-- Request-time override of rolling features (changes the API contract, needs both owners' approval).
-- Scheduled Feast re-materialization to match the existing freshness alert.
-- Run the monthly refresh flow on real data, then add the canary step.
-- A shared DVC remote.
-- A genuinely live variant on a source with a real-time feed and automatically arriving labels, such as bike-share station availability.
-- More winter data, then a weather-aware model if weather sensitivity is wanted.
-
----
-
-## Project status
-
-| Area | Status |
-|---|---|
-| Cleaning, Pandera validation, DVC `clean` stage | Verified on real data (Jan-Apr 2026) |
-| Training, MLflow tracking and registry | Verified on real data |
-| Feast stores and skew test | Verified (tests) |
-| FastAPI service, live weather, prediction log | Verified locally and on the Compose stack |
-| Drift detection, surge demo | Verified on the Compose stack |
-| CI on GitHub | Green on `main` through the monitoring commits; the new UI jobs have not been checked yet |
-| Canary rollout on k3d | Good and bad runs verified on the final manifests |
-| Monthly refresh flow | Written and tested with mocks; not yet run on real data |
-| Streamlit UI | Verified in a browser on the Compose stack (prediction, map, API-down error); the 422 and timeout messages are covered by mocked tests only |
-| Demo recording | Pending |
-
----
-
 ## Team and ownership
-
-WhenTaxi is built by two equal contributors, each owning half of every domain. Ownership is enforced through `.github/CODEOWNERS`; `ui/` is owned by both.
 
 | Domain | [@vaishnavi7106](https://github.com/vaishnavi7106) | [@amizh-labs](https://github.com/amizh-labs) |
 |---|---|---|
@@ -621,8 +548,6 @@ WhenTaxi is built by two equal contributors, each owning half of every domain. O
 | ML | Evaluation, champion/challenger comparison, promotion | Training, MLflow registry, drift reports |
 | MLOps | CI/CD, metric gate, image build | Prefect flows, retrain triggers |
 | Deployment | k3d, Argo Rollouts canary, analysis template | FastAPI service, Docker, monitoring, dashboards |
-
-Workflow: pull requests reviewed by the other owner, a short teach-back after each package, and commits made only under each author's own identity.
 
 ---
 
@@ -633,64 +558,3 @@ Workflow: pull requests reviewed by the other owner, a short teach-back after ea
 - **Open-Meteo** (historical archive and forecast APIs): https://open-meteo.com
 
 Trip data, zone files, and weather are public. The raw files and the zone shapefile are not committed; `scripts/download_data.py` rebuilds them.
-
----
-
-## Operational reference
-
-Details for operating the data, prediction log and DVC pieces.
-
-### Data files
-
-- `data/raw/` (DVC-tracked, never in git): TLC yellow-taxi trip files, `taxi_zone_lookup.csv`, Open-Meteo weather.
-- `data/reference/zone_centroids.csv` (committed, small): one lat/lon centroid per taxi zone, used by
-  `features.geo` for distance and bearing features. Zones 264/265 ("Unknown") have no polygon and are absent.
-  - Source: NYC TLC Taxi Zone Shapefile, `https://d37ci6vzurychx.cloudfront.net/misc/taxi_zones.zip`
-  - Downloaded: 2026-11-18. The shapefile itself is not committed.
-  - Rebuild (rare, needs the optional extra): `pip install -e ".[geo]"` then
-    `python scripts/build_zone_centroids.py --download <empty dir>`.
-
-### Prediction log (live / Compose deployment only)
-
-`/predict` can append every call to a SQLite file so real requests can be compared with the training data.
-
-- **Off by default.** Enable with `ETA_PREDICTION_LOG=<path>` (for example `data/prediction_log.sqlite`).
-  Optional `ETA_PREDICTION_LOG_MAX_ROWS` (default 100000) keeps only the newest rows.
-- **Single-instance only.** The log is meant for the single-container Compose/live deployment. The k3d cluster demo runs
-  5-10 API replicas that would fight over one SQLite file, so it leaves the log off and keeps only Prometheus metrics.
-- **Columns:** `ts` (UTC), `pickup_zone`, `dropoff_zone`, `pickup_ts`, the four weather values the model used,
-  `weather_source` (`request` / `live` / `archive` / `missing`), `eta_minutes`, `model_version`.
-- **Cannot hurt `/predict`.** The request only puts a record on a bounded in-memory queue; a background thread writes it
-  (WAL mode). A full queue drops records and any write error is swallowed (both are counted); the response is unchanged.
-- **Drift on real requests:** `python -m monitoring.prediction_drift --log <path>` compares the logged window with a
-  20k-row sample of Jan-Feb 2026 on hour, day of week, the four weather columns and the geo distance between zones
-  (raw zone ids are not compared: too many categories and too noisy at a few hundred requests). It writes
-  `monitoring/reports/drift_report.json` (contract format, `docs/contracts.md` section 5) and an HTML report.
-  With fewer than 200 logged rows it reports `"status": "insufficient data"` and never flags drift.
-  Weather in November will honestly differ from January-February, so expect temperature to drift on a live log.
-
-**Drift check caveats.**
-- The drift check assumes representative traffic: a log of a few test requests (or one rider type) will look "drifted"
-  against the Jan-Feb reference. Demo drift runs therefore replay real trips (`monitoring/simulator.py`, or the surge demo below),
-  not hand-sent requests.
-- November weather will differ from the Jan-Feb reference. That is why the four weather columns are reported as
-  context (`context_drift`) but can never set `dataset_drift`; only hour, day of week and zone distance can.
-- Missing weather is a data-quality signal, not drift: the report's `data_quality.share_missing_weather` carries an
-  `alert` flag above 20%.
-- Compose runs the log on a named volume (`prediction-log`). The daily check is a Prefect flow:
-  `python -m flows.drift_flow` (once) or `python -m flows.drift_flow --serve` (daily at 06:00); copy the log out of the
-  volume first with `docker compose cp api:/app/log/predictions.sqlite data/prediction_log.sqlite`.
-
-### Data versioning (DVC)
-
-- **What is tracked.** `data/raw` (trip files, zone lookup, weather) is tracked by DVC through `data/raw.dvc`; git
-  only holds that small pointer. `data/processed/trips_clean.parquet` is produced by the `clean` stage in `dvc.yaml`,
-  with the drop report `data/processed/data_quality_report.json` as its metric file.
-- **Track or update the raw data:** `dvc add data/raw`, then commit the changed `data/raw.dvc`.
-- **Local remote.** `.dvc/config` points the remote `localremote` at a folder on one machine (`/home/user1/dvc-remote`);
-  `dvc push` / `dvc pull` copy data to and from it. It is free and needs no account, but it is not shared between machines.
-- **Rebuild the cleaned data:** `dvc repro` runs the `clean` stage. A second run prints "Data and pipelines are up
-  to date" and does nothing, until the raw data or `src/validation/clean.py` / `schema.py` change.
-- **Fresh clone** (no DVC cache and no access to the other machine's remote): run `python scripts/download_data.py`
-  to fetch the raw files, then `dvc add data/raw` to track them, then `dvc repro`. Identical files give an identical hash,
-  so `data/raw.dvc` stays unchanged.
